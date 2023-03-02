@@ -1,0 +1,164 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <title>Chatbot</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Chatbot por voz</h1>
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input
+          type="text"
+          name="message"
+          id="message-input"
+          placeholder="Escribe tu mensaje..."
+        />
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chatbot de ingeniería de sistemas</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f1f1f1;
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+
+      .chat-container {
+        height: 400px;
+        overflow-y: scroll;
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+      }
+
+      .input-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      input[type="text"],
+      button {
+        height: 40px;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 3px;
+        background-color: #f2f2f2;
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+
+      button {
+        color: #fff;
+        background-color: #4caf50;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Chatbot</h1>
+      <div class="chat-container" id="chat-container"></div>
+      <div class="input-container">
+        <input
+          type="text"
+          id="input-message"
+          placeholder="Escribe tu mensaje aquí"
+        />
+        <button id="send-btn">Enviar</button>
+      </div>
+    </div>
+
+    <script>
+      const chatContainer = document.getElementById("chat-container");
+      const inputMessage = document.getElementById("input-message");
+      const sendBtn = document.getElementById("send-btn");
+
+      inputMessage.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      sendBtn.addEventListener("click", () => {
+        sendMessage();
+      });
+
+      function sendMessage() {
+        const message = inputMessage.value.trim();
+        if (!message) {
+          return;
+        }
+
+        const chatBubble = createChatBubble(message, true);
+        chatContainer.appendChild(chatBubble);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        fetch("http://localhost:3000/webhook", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: message }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const fulfillmentText = data.fulfillmentText;
+            const chatBubble = createChatBubble(fulfillmentText, false);
+            chatContainer.appendChild(chatBubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+
+        inputMessage.value = "";
+      }
+
+      function createChatBubble(text, isUser) {
+        const chatBubble = document.createElement("div");
+        chatBubble.classList.add("chat-bubble");
+
+        if (isUser) {
+          chatBubble.classList.add("user");
+        } else {
+          chatBubble.classList.add("bot");
+        }
+
+        const chatText = document.createElement("p");
+        chatText.textContent = text;
+
+        chatBubble.appendChild(chatText);
+        return chatBubble;
+      }
+    </script>
+  </body>
+</html>
